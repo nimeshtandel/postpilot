@@ -3,14 +3,14 @@ import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import { eq } from "drizzle-orm";
 import { db, users } from "./db";
-import { env } from "./env";
+import { getSecret } from "./secrets";
 export { hashPassword, verifyPassword } from "./crypto";
 
 const COOKIE = "pp_session";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
-function secret() {
-  return new TextEncoder().encode(env("AUTH_SECRET"));
+async function secret() {
+  return new TextEncoder().encode(await getSecret("AUTH_SECRET"));
 }
 
 export async function createSession(userId: string) {
@@ -18,7 +18,7 @@ export async function createSession(userId: string) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE}s`)
-    .sign(secret());
+    .sign(await secret());
   const jar = await cookies();
   jar.set(COOKIE, token, {
     httpOnly: true,
@@ -37,7 +37,7 @@ export async function getUserId(): Promise<string | null> {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret());
+    const { payload } = await jwtVerify(token, await secret());
     return typeof payload.sub === "string" ? payload.sub : null;
   } catch {
     return null;

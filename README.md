@@ -29,10 +29,7 @@ Steps:
    npm install
    npx wrangler login
    ```
-2. **Create the app's own secrets** (run this once only):
-   ```bash
-   npm run setup:secrets
-   ```
+2. **App secrets are automatic.** `AUTH_SECRET`, `ENCRYPTION_KEY` and `CRON_SECRET` are generated on first use and stored in the D1 table `app_secrets`. You can still set them as Worker secrets (`npm run setup:secrets`); a Worker secret always wins. Never delete that table: it holds the key that decrypts saved social connections.
 3. **First deploy:**
    ```bash
    npm run deploy

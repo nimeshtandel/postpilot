@@ -1,5 +1,6 @@
 // Web Crypto only, so it runs on Cloudflare Workers (and Node) without native modules.
-import { env, envOr } from "./env";
+import { envOr } from "./env";
+import { getSecret } from "./secrets";
 
 const enc = new TextEncoder();
 const dec = new TextDecoder();
@@ -35,9 +36,12 @@ export async function pkceChallenge(verifier: string): Promise<string> {
 let keyPromise: Promise<CryptoKey> | null = null;
 function aesKey(): Promise<CryptoKey> {
   if (!keyPromise) {
-    const raw = fromB64(env("ENCRYPTION_KEY"));
-    if (raw.length !== 32) throw new Error("ENCRYPTION_KEY must be 32 bytes, base64 encoded (openssl rand -base64 32).");
-    keyPromise = crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt", "decrypt"]);
+    keyPromise = getSecret("ENCRYPTION_KEY").then((b64) => {
+      const raw = fromB64(b64);
+      if (raw.length !== 32) throw new Error("ENCRYPTION_KEY must be 32 bytes, base64 encoded (openssl rand -base64 32).");
+      return crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt", "decrypt"]);
+    });
+    keyPromise.catch(() => (keyPromise = null));
   }
   return keyPromise;
 }

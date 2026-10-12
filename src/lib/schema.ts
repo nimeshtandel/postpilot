@@ -92,6 +92,12 @@ export const oauthStates = sqliteTable("oauth_states", {
   createdAt: createdAt(),
 });
 
+/** App-internal secrets generated on first use when not set as Worker secrets (see secrets.ts). */
+export const appSecrets = sqliteTable("app_secrets", {
+  name: text("name").primaryKey(),
+  value: text("value").notNull(),
+});
+
 export const postsRelations = relations(posts, ({ many }) => ({ targets: many(postTargets) }));
 export const postTargetsRelations = relations(postTargets, ({ one }) => ({
   post: one(posts, { fields: [postTargets.postId], references: [posts.id] }),
