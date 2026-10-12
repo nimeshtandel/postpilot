@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+.env
+.env.local
+*.db
+*.db-journal
+uploads
+next-env.d.ts
+*.tsbuildinfo
+.DS_Store
+.open-next
+.wrangler
+.dev.vars
+AGENTS.md
+CLAUDE.md

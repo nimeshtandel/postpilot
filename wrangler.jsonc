@@ -1,0 +1,44 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "postpilot",
+  // Custom entry: OpenNext's Next.js handler + a scheduled() handler for publishing.
+  "main": "worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "postpilot" }],
+
+  // Database (users, accounts, posts).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "postpilot",
+      "database_id": "302c5327-a10b-4cde-ab16-ca15c116cf2d",
+      "migrations_dir": "drizzle"
+    }
+  ],
+
+  // Uploaded photos and videos (Workers KV: free, up to 25 MB per file, 1 GB total on the free plan).
+  "kv_namespaces": [{ "binding": "MEDIA", "id": "05b55474389f4fcaa435f92f32d8c979" }],
+
+  // Publish due posts every minute.
+  "triggers": { "crons": ["* * * * *"] },
+
+  // Non-secret settings. Secrets (API keys, AUTH_SECRET…) go in with `wrangler secret put` — see README.
+  "vars": {
+    // Set to your live URL after the first deploy, then deploy again.
+    "APP_URL": "https://postpilot.YOUR-SUBDOMAIN.workers.dev",
+    "ANTHROPIC_MODEL": "claude-sonnet-5-5",
+    "META_GRAPH_VERSION": "v23.0",
+    "LINKEDIN_API_VERSION": "202605",
+    "TIKTOK_PRIVACY_LEVEL": "SELF_ONLY",
+    "MAX_UPLOAD_MB": "25",
+    // Password hashing strength. 20000 fits the free plan's CPU limit; raise to 100000 on Workers Paid.
+    "PASSWORD_HASH_ITERATIONS": "20000"
+  },
+
+  "observability": { "enabled": true }
+}
