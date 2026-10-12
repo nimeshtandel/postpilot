@@ -29,8 +29,7 @@
 
   // Non-secret settings. Secrets (API keys, AUTH_SECRET…) go in with `wrangler secret put` — see README.
   "vars": {
-    // Set to your live URL after the first deploy, then deploy again.
-    "APP_URL": "https://postpilot.YOUR-SUBDOMAIN.workers.dev",
+    "APP_URL": "https://postpilot.nimesh3806.workers.dev",
     "ANTHROPIC_MODEL": "claude-sonnet-5-5",
     "META_GRAPH_VERSION": "v23.0",
     "LINKEDIN_API_VERSION": "202605",
